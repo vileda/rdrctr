@@ -98,6 +98,12 @@ public class RedirectsResourceTest {
     }
 
     @Test
+    public void testGetUnknownRedirectReturns404() {
+        Response response = target.path("/rdrctr/0").request().get();
+        assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+    }
+
+    @Test
     public void testIncrementViewCountOnRedirect() {
         String from = getTestHost();
         String to = getTestHost();

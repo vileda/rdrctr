@@ -64,8 +64,12 @@ public class RedirectsResource {
     @GET
     @Path("rdrctr/{id : \\d+}")
     @Produces("application/json")
-    public JsonObject getRedirect(@PathParam("id") long id) {
-        return redirects.find(id).asJsonObject();
+    public Response getRedirect(@PathParam("id") long id) {
+        Redirect redirect = redirects.find(id);
+        if(redirect == null) {
+            return Response.noContent().build();
+        }
+        return Response.ok().entity(redirect.asJsonObject()).build();
     }
 
     private Response redirectTo(Redirect redirect, String path) {

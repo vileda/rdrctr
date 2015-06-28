@@ -79,7 +79,8 @@ public class RedirectsResourceTest {
         String from = getTestHost();
         String to = getTestHost();
 
-        Response response = createRedirectByPost(from, to);
+        Redirect redirect = new Redirect(from, to);
+        Response response = createRedirectByPost(redirect);
 
         assertNotNull(response);
         assertThat(response.getStatus(), is(Response.Status.CREATED.getStatusCode()));
@@ -88,8 +89,12 @@ public class RedirectsResourceTest {
         assertNotNull(newRedirectUri);
 
         JsonObject newRedirect = getRedirect(newRedirectUri);
+        assertNotNull(newRedirect);
+        JsonObject redirectJson = redirect.asJsonObject();
 
-        assertThat(to, is(newRedirect.getString("toHost")));
+        assertThat(redirectJson.getString("toHost"), is(newRedirect.getString("toHost")));
+        assertThat(redirectJson.getString("fromHost"), is(newRedirect.getString("fromHost")));
+        assertThat(redirectJson.getString("createdAt"), is(newRedirect.getString("createdAt")));
     }
 
     @Test
@@ -114,7 +119,11 @@ public class RedirectsResourceTest {
     }
 
     private Response createRedirectByPost(String from, String to) {
-        Entity<JsonObject> redirectEntity = Entity.json(new Redirect(from, to).asJsonObject());
+        return createRedirectByPost(new Redirect(from, to));
+    }
+
+    private Response createRedirectByPost(Redirect redirect) {
+        Entity<JsonObject> redirectEntity = Entity.json(redirect.asJsonObject());
         return target.request(MediaType.APPLICATION_JSON_TYPE).post(redirectEntity);
     }
 

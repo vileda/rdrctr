@@ -6,6 +6,7 @@ import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -63,8 +64,8 @@ public class RedirectsResource {
     @GET
     @Path("rdrctr/{id : \\d+}")
     @Produces("application/json")
-    public Redirect getRedirect(@PathParam("id") long id) {
-        return redirects.find(id);
+    public JsonObject getRedirect(@PathParam("id") long id) {
+        return redirects.find(id).asJsonObject();
     }
 
     private Response redirectTo(Redirect redirect, String path) {

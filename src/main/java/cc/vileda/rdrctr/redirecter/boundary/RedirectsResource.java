@@ -74,7 +74,7 @@ public class RedirectsResource {
 
         redirects.incrementViewCount(redirect);
 
-        logger.info("redirect " + hostHeader + " to " + location + " the " + redirect.getViewCount() + "th time.");
+        logger.info("redirect " + hostHeader + " -> " + location + " the " + redirect.getViewCount() + "th time.");
 
         return Response
                 .temporaryRedirect(URI.create(location))

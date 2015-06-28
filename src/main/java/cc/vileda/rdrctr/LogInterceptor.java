@@ -1,0 +1,49 @@
+package cc.vileda.rdrctr;
+
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LogInterceptor {
+    @Resource
+    private SessionContext sessionCtx;
+
+    @Inject
+    private Logger log;
+
+    @AroundInvoke
+    protected Object protocolInvocation(final InvocationContext ic)
+            throws Exception {
+        StringBuilder sb = new StringBuilder("[");
+        ArrayList<Object> objects = new ArrayList<>();
+        Collections.addAll(objects, ic.getParameters());
+        if(objects.size() > 0) {
+            if(objects.size() > 1) {
+                for (Object obj : objects.subList(0, objects.size()-2)) {
+                    sb.append(obj.toString());
+                    sb.append(", ");
+                }
+            }
+            sb.append(objects.get(objects.size() - 1).toString());
+        }
+        sb.append("]");
+        log.log(Level.INFO,
+                ">>> user {0} invoced {1} with method {2} and parameters: {3}",
+                new Object[] { sessionCtx.getCallerPrincipal().getName(),
+                        ic.getTarget().toString(), ic.getMethod().getName(),
+                        sb.toString() });
+        Object result = ic.proceed();
+        log.log(Level.INFO,
+                "<<< user {0} left class {1} and method {2} with parameters: {3}",
+                new Object[] { sessionCtx.getCallerPrincipal().getName(),
+                        ic.getTarget().toString(), ic.getMethod().getName(),
+                        sb.toString() });
+        return result;
+    }
+}

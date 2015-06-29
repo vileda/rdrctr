@@ -11,6 +11,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.Arrays;
 import java.util.Optional;
 
 
@@ -25,6 +26,7 @@ public class Redirects {
             CriteriaQuery<Redirect> query = criteriaBuilder.createQuery(Redirect.class);
             Predicate predicate = criteriaBuilder.disjunction();
             Root<Redirect> from = query.from(Redirect.class);
+
             for (String fromHost : fromHosts) {
                 predicate = criteriaBuilder.or(predicate,
                         criteriaBuilder.equal(from.get(Redirect_.fromHost), fromHost));

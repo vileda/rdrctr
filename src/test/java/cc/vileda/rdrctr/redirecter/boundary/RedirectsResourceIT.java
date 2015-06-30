@@ -18,7 +18,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import static cc.vileda.rdrctr.redirecter.boundary.RedirecterTestHelper.assertRedirectTo;
-import static cc.vileda.rdrctr.redirecter.boundary.RedirectsResource.extractSubdomain;
+import static cc.vileda.rdrctr.redirecter.control.RedirectsHelper.extractSubdomain;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -39,7 +39,7 @@ public class RedirectsResourceIT {
                 .register(JsonProcessingFeature.class)
                 .property(ClientProperties.FOLLOW_REDIRECTS, false)
                 .property(JsonGenerator.PRETTY_PRINTING, true);
-        target = client.target("http://localhost:8080/");
+        target = client.target("http://localhost:8080/rdrctr/");
     }
 
     @Test

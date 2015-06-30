@@ -3,16 +3,8 @@ package cc.vileda.rdrctr.redirecter.boundary;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.archive.importer.MavenImporter;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.reflections.Reflections;
 
 import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
@@ -23,7 +15,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Set;
 import java.util.UUID;
 
 import static cc.vileda.rdrctr.redirecter.boundary.RedirecterTestHelper.assertRedirectTo;
@@ -32,7 +23,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
 public class RedirectsResourceIT {
 
     public static final String TESTHOST_FROM_ONE = "testhost.de";
@@ -42,12 +32,6 @@ public class RedirectsResourceIT {
     private Client client;
     private WebTarget target;
 
-    @Deployment
-    public static WebArchive create() {
-        return ShrinkWrap.create(MavenImporter.class)
-                .loadPomFromFile("pom.xml").importBuildOutput().as(WebArchive.class);
-    }
-
     @Before
     public void before() {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
@@ -55,41 +39,41 @@ public class RedirectsResourceIT {
                 .register(JsonProcessingFeature.class)
                 .property(ClientProperties.FOLLOW_REDIRECTS, false)
                 .property(JsonGenerator.PRETTY_PRINTING, true);
-        target = client.target("http://localhost:8080/rdrctr");
+        target = client.target("http://localhost:8080/");
     }
 
     @Test
-    public void testRedirectWithKnownHost() throws Exception {
+    public void redirectWithKnownHost() throws Exception {
         assertRedirectTo(target, TESTHOST_FROM_ONE, TESTHOST_TO_ONE);
         assertRedirectTo(target, TESTHOST_FROM_TWO, TESTHOST_TO_TWO);
     }
 
     @Test
-    public void testRedirectWithKnownHostAndPath() throws Exception {
+    public void redirectWithKnownHostAndPath() throws Exception {
         assertRedirectTo(target.path("/foobar"), "testhost.de", "http://testhost2.de/foobar");
         assertRedirectTo(target.path("/foobar/baz"), "testhost.de", "http://testhost2.de/foobar/baz");
     }
 
     @Test
-    public void testRedirectWithKnownHostAndSubdomain() throws Exception {
+    public void redirectWithKnownHostAndSubdomain() throws Exception {
         assertRedirectTo(target, "www.testhost.de", "http://www.testhost2.de/");
     }
 
     @Test
-    public void testRedirectWithKnownHostSubdomainAndPath() throws Exception {
+    public void redirectWithKnownHostSubdomainAndPath() throws Exception {
         assertRedirectTo(target.path("/foobar/baz"),
                 "foo.www.testhost.de", "http://foo.www.testhost2.de/foobar/baz");
     }
 
     @Test
-    public void testRedirectWithUnknownHost() throws Exception {
+    public void redirectWithUnknownHost() throws Exception {
         Response response = target.request().header("Host", "unknown").get();
         assertNotNull(response);
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     @Test
-    public void testCreateNewRedirect() throws Exception {
+    public void createNewRedirect() throws Exception {
         String from = getTestHost();
         String to = getTestHost();
 
@@ -112,13 +96,13 @@ public class RedirectsResourceIT {
     }
 
     @Test
-    public void testGetUnknownRedirectReturns404() {
+    public void getUnknownRedirectReturns404() {
         Response response = target.path("/rdrctr/0").request().get();
         assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
     }
 
     @Test
-    public void testIncrementViewCountOnRedirect() {
+    public void incrementViewCountOnRedirect() {
         String from = getTestHost();
         String to = getTestHost();
         to = to.replace(extractSubdomain(to), "");
@@ -126,6 +110,13 @@ public class RedirectsResourceIT {
         assertRedirectTo(target, from, "http://" + extractSubdomain(from) + to + "/");
         JsonObject redirect = getRedirect(response.getLocation());
         assertThat(redirect.getInt("viewCount"), is(1));
+    }
+
+    @Test
+    public void doNotRedirectOnFavicon() {
+        Response response = target.path("/favicon.ico").request().header("Host", TESTHOST_FROM_ONE).get();
+        assertNotNull(response);
+        assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
 
     private String getTestHost() {

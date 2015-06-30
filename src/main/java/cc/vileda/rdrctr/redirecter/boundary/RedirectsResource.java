@@ -33,7 +33,7 @@ public class RedirectsResource {
     @Path("/{path : ^(?:(?!rdrctr).)*$}")
     public Response doRedirect(@PathParam("path") String path) {
         String host = request.getHeader("Host");
-        if(host != null) {
+        if(host != null && !"favicon.ico".equals(path)) {
             Response redirectResponse = getRedirectByHost(host, path);
             if (redirectResponse != null) return redirectResponse;
         }
@@ -41,17 +41,6 @@ public class RedirectsResource {
         logger.info("redirect for " + host + "/" + path + " not found.");
 
         return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    private Response getRedirectByHost(String host, String path) {
-        String subdomain = extractSubdomain(host);
-        String fromHost = subdomain.length() > 0 ? host.replace(subdomain, "") : host;
-
-        Optional<Redirect> redirect = redirects.findByFromHost(fromHost, host);
-
-        if (redirect.isPresent()) return redirectTo(redirect.get(), path);
-
-        return null;
     }
 
     @POST
@@ -70,6 +59,17 @@ public class RedirectsResource {
             return Response.noContent().build();
         }
         return Response.ok().entity(redirect.asJsonObject()).build();
+    }
+
+    private Response getRedirectByHost(String host, String path) {
+        String subdomain = extractSubdomain(host);
+        String fromHost = subdomain.length() > 0 ? host.replace(subdomain, "") : host;
+
+        Optional<Redirect> redirect = redirects.findByFromHost(fromHost, host);
+
+        if (redirect.isPresent()) return redirectTo(redirect.get(), path);
+
+        return null;
     }
 
     private Response redirectTo(Redirect redirect, String path) {

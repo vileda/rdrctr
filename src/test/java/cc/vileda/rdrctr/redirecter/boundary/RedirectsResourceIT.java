@@ -25,10 +25,10 @@ import static org.junit.Assert.assertThat;
 
 public class RedirectsResourceIT {
 
-    public static final String TESTHOST_FROM_ONE = "testhost.de";
-    public static final String TESTHOST_FROM_TWO = "testfoobar.de";
-    public static final String TESTHOST_TO_ONE = "http://testhost2.de/";
-    public static final String TESTHOST_TO_TWO = "http://foobar.de/";
+    private static final String TESTHOST_FROM_ONE = "testhost.de";
+    private static final String TESTHOST_FROM_TWO = "testfoobar.de";
+    private static final String TESTHOST_TO_ONE = "http://testhost2.de/";
+    private static final String TESTHOST_TO_TWO = "http://foobar.de/";
     private Client client;
     private WebTarget target;
 

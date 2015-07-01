@@ -1,6 +1,7 @@
 package cc.vileda.rdrctr.redirecter.boundary;
 
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
+import cc.vileda.rdrctr.redirecter.entity.RedirectLog;
 import cc.vileda.rdrctr.redirecter.entity.Redirect_;
 
 import javax.ejb.Stateless;
@@ -11,7 +12,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Arrays;
 import java.util.Optional;
 
 
@@ -53,5 +53,10 @@ public class Redirects {
 
     public Redirect find(long id) {
         return em.find(Redirect.class, id);
+    }
+
+    public void logRedirect(String referer, String fromHost, String toHost, String ip) {
+        RedirectLog redirectLog = new RedirectLog(referer, fromHost, toHost, ip);
+        em.merge(redirectLog);
     }
 }

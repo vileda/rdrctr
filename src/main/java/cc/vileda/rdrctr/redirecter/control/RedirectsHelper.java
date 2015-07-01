@@ -2,8 +2,11 @@ package cc.vileda.rdrctr.redirecter.control;
 
 import cc.vileda.rdrctr.redirecter.boundary.Redirects;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
+import cc.vileda.rdrctr.redirecter.entity.RedirectEvent;
 
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -24,6 +27,9 @@ public class RedirectsHelper {
     @Inject
     Logger logger;
 
+    @Inject
+    Event<RedirectEvent> redirectEvent;
+
     public static String extractSubdomain(String hostHeader) {
         Pattern tld = Pattern.compile("^(.*)\\..*\\..*$");
         Matcher matcher = tld.matcher(hostHeader);
@@ -31,7 +37,7 @@ public class RedirectsHelper {
         return matcher.matches() ? (matcher.group(1) + ".") : "";
     }
 
-    public String buildLocation(Redirect redirect, String subdomain, String path) {
+    private String buildLocation(Redirect redirect, String subdomain, String path) {
         String location = request.getScheme()
                 + "://"
                 + subdomain
@@ -41,7 +47,7 @@ public class RedirectsHelper {
         return location.replace(redirect.getFromHost(), "");
     }
 
-    public Response redirectTo(Redirect redirect, String path) {
+    private Response redirectTo(Redirect redirect, String path) {
         String hostHeader = request.getHeader("Host");
         String subdomain = extractSubdomain(hostHeader);
         String location = buildLocation(redirect, subdomain, path);
@@ -64,5 +70,14 @@ public class RedirectsHelper {
         if (redirect.isPresent()) return redirectTo(redirect.get(), path);
 
         return null;
+    }
+
+    public void logRequestToDatabase(@Observes RedirectEvent event) {
+        String referer = event.getRequest().getHeader("Referer");
+        String fromHost = event.getRequest().getHeader("Host");
+        String toHost = event.getToHost();
+        String ip = event.getRequest().getRemoteAddr();
+
+        redirects.logRedirect(referer, fromHost, toHost, ip);
     }
 }

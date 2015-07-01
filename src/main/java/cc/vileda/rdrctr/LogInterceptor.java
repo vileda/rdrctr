@@ -37,7 +37,7 @@ public class LogInterceptor {
         sb.append("]");
 
         log.log(Level.INFO,
-                ">>> user {0} invoced {1} with method {2} and parameters: {3}",
+                ">>> user {0} invoked {1} with method {2} and parameters: {3}",
                 new Object[]{sessionCtx.getCallerPrincipal().getName(),
                         ic.getTarget().toString(), ic.getMethod().getName(),
                         sb.toString()});
@@ -64,21 +64,21 @@ public class LogInterceptor {
         return result;
     }
 
-    public long getCpuTime() {
+    private long getCpuTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
                 bean.getCurrentThreadCpuTime() : 0L;
     }
 
     /** Get user time in nanoseconds. */
-    public long getUserTime() {
+    private long getUserTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
                 bean.getCurrentThreadUserTime() : 0L;
     }
 
     /** Get system time in nanoseconds. */
-    public long getSystemTime() {
+    private long getSystemTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
                 (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;

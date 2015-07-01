@@ -55,8 +55,8 @@ public class Redirects {
         return em.find(Redirect.class, id);
     }
 
-    public void logRedirect(String referer, String fromHost, String toHost, String ip) {
-        RedirectLog redirectLog = new RedirectLog(referer, fromHost, toHost, ip);
+    public void logRedirect(Redirect redirect, String referer, String fromHost, String toHost, String ip) {
+        RedirectLog redirectLog = new RedirectLog(redirect, referer, fromHost, toHost, ip);
         em.merge(redirectLog);
     }
 }

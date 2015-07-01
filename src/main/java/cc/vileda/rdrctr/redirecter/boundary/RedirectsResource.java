@@ -3,7 +3,8 @@ package cc.vileda.rdrctr.redirecter.boundary;
 import cc.vileda.rdrctr.LogInterceptor;
 import cc.vileda.rdrctr.redirecter.control.RedirectsHelper;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
-import cc.vileda.rdrctr.redirecter.entity.RedirectEvent;
+import cc.vileda.rdrctr.redirecter.entity.KnownRedirectEvent;
+import cc.vileda.rdrctr.redirecter.entity.UnknownRedirectEvent;
 
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -33,7 +34,10 @@ public class RedirectsResource {
     RedirectsHelper redirectsHelper;
 
     @Inject
-    Event<RedirectEvent> redirectEvent;
+    Event<KnownRedirectEvent> knownRedirectEventEvent;
+
+    @Inject
+    Event<UnknownRedirectEvent> unknownRedirectEventEvent;
 
     @GET
     @Path("/{path : ^(?:(?!rdrctr).)*$}")
@@ -43,13 +47,12 @@ public class RedirectsResource {
         if(host != null && !"favicon.ico".equals(path)) {
             Response redirectResponse = redirectsHelper.getRedirectByHost(host, path);
             if (redirectResponse != null) {
-                redirectEvent.fire(new RedirectEvent(request, redirectResponse.getHeaderString("Location")));
                 return redirectResponse;
             }
         }
 
         logger.info("redirect for " + host + "/" + path + " not found.");
-        redirectEvent.fire(new RedirectEvent(request, null));
+        unknownRedirectEventEvent.fire(new UnknownRedirectEvent(request));
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }

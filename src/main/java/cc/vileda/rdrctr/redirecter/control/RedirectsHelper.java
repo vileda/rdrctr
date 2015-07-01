@@ -2,7 +2,8 @@ package cc.vileda.rdrctr.redirecter.control;
 
 import cc.vileda.rdrctr.redirecter.boundary.Redirects;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
-import cc.vileda.rdrctr.redirecter.entity.RedirectEvent;
+import cc.vileda.rdrctr.redirecter.entity.KnownRedirectEvent;
+import cc.vileda.rdrctr.redirecter.entity.UnknownRedirectEvent;
 
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -28,7 +29,7 @@ public class RedirectsHelper {
     Logger logger;
 
     @Inject
-    Event<RedirectEvent> redirectEvent;
+    Event<KnownRedirectEvent> redirectEvent;
 
     public static String extractSubdomain(String hostHeader) {
         Pattern tld = Pattern.compile("^(.*)\\..*\\..*$");
@@ -67,17 +68,28 @@ public class RedirectsHelper {
 
         Optional<Redirect> redirect = redirects.findByFromHost(fromHost, host);
 
-        if (redirect.isPresent()) return redirectTo(redirect.get(), path);
+        if (redirect.isPresent()) {
+            redirectEvent.fire(new KnownRedirectEvent(request, redirect.get()));
+            return redirectTo(redirect.get(), path);
+        }
 
         return null;
     }
 
-    public void logRequestToDatabase(@Observes RedirectEvent event) {
+    public void logKnownRedirectToDatabase(@Observes KnownRedirectEvent event) {
         String referer = event.getRequest().getHeader("Referer");
         String fromHost = event.getRequest().getHeader("Host");
-        String toHost = event.getToHost();
+        String toHost = event.getRedirect().getToHost();
         String ip = event.getRequest().getRemoteAddr();
 
-        redirects.logRedirect(referer, fromHost, toHost, ip);
+        redirects.logRedirect(event.getRedirect(), referer, fromHost, toHost, ip);
+    }
+
+    public void logUnknownRedirectToDatabase(@Observes UnknownRedirectEvent event) {
+        String referer = event.getRequest().getHeader("Referer");
+        String fromHost = event.getRequest().getHeader("Host");
+        String ip = event.getRequest().getRemoteAddr();
+
+        redirects.logRedirect(null, referer, fromHost, null, ip);
     }
 }

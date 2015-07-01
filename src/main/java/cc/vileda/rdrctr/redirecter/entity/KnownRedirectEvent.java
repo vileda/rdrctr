@@ -2,20 +2,20 @@ package cc.vileda.rdrctr.redirecter.entity;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class RedirectEvent {
+public class KnownRedirectEvent {
     private final HttpServletRequest request;
-    private final String toHost;
+    private final Redirect redirect;
 
-    public RedirectEvent(HttpServletRequest request, String toHost) {
+    public KnownRedirectEvent(HttpServletRequest request, Redirect redirect) {
         this.request = request;
-        this.toHost = toHost;
+        this.redirect = redirect;
     }
 
     public HttpServletRequest getRequest() {
         return request;
     }
 
-    public String getToHost() {
-        return toHost;
+    public Redirect getRedirect() {
+        return redirect;
     }
 }

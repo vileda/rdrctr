@@ -2,26 +2,22 @@ package cc.vileda.rdrctr.redirecter.entity;
 
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Redirect {
-
-    public Redirect() { }
-
-    public Redirect(String fromHost, String toHost) {
-        this.fromHost = fromHost;
-        this.toHost = toHost;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -34,10 +30,20 @@ public class Redirect {
 
     @Column(nullable = false)
     private long viewCount = 0L;
+
+    @OneToMany(mappedBy = "redirect")
+    private List<RedirectLog> redirectLogs = new ArrayList<>();
     
     private Date createdAt = new Date();
 
     private Date updatedAt = new Date();
+
+    public Redirect() { }
+
+    public Redirect(String fromHost, String toHost) {
+        this.fromHost = fromHost;
+        this.toHost = toHost;
+    }
 
     public long getId() {
         return id;
@@ -87,8 +93,20 @@ public class Redirect {
         this.updatedAt = updatedAt;
     }
 
+    public List<RedirectLog> getRedirectLogs() {
+        return redirectLogs;
+    }
+
+    public void setRedirectLogs(List<RedirectLog> redirectLogs) {
+        this.redirectLogs = redirectLogs;
+    }
+
     public JsonObject asJsonObject() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for (RedirectLog redirectLog : redirectLogs) {
+            arrayBuilder.add(redirectLog.asJsonObject());
+        }
         return Json.createObjectBuilder()
                 .add("id", id)
                 .add("fromHost", fromHost)
@@ -96,6 +114,7 @@ public class Redirect {
                 .add("viewCount", viewCount)
                 .add("createdAt", dateFormat.format(createdAt))
                 .add("updatedAt", dateFormat.format(updatedAt))
+                .add("redirectLogs", arrayBuilder.build())
                 .build();
     }
 }

@@ -2,7 +2,7 @@
 <!--suppress JpaDomInspection -->
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
     <!--suppress JpaDomInspection -->
-    <persistence-unit name="h2" transaction-type="JTA">
+    <persistence-unit name="integration-test" transaction-type="JTA">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <jta-data-source>java:jboss/datasources/rdrctrDS</jta-data-source>
         <properties>

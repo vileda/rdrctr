@@ -19,7 +19,8 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Redirect {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "redirect_seq_gen")
+    @SequenceGenerator(name = "redirect_seq_gen", sequenceName = "redirect_id_seq")
     private long id;
 
     @Column(nullable = false, unique = true)
@@ -32,11 +33,11 @@ public class Redirect {
     private long viewCount = 0L;
 
     @OneToMany(mappedBy = "redirect")
-    private List<RedirectLog> redirectLogs = new ArrayList<>();
+    private final List<RedirectLog> redirectLogs = new ArrayList<>();
     
-    private Date createdAt = new Date();
+    private final Date createdAt = new Date();
 
-    private Date updatedAt = new Date();
+    private final Date updatedAt = new Date();
 
     public Redirect() { }
 
@@ -49,24 +50,12 @@ public class Redirect {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getFromHost() {
         return fromHost;
     }
 
-    public void setFromHost(String pattern) {
-        this.fromHost = pattern;
-    }
-
     public String getToHost() {
         return toHost;
-    }
-
-    public void setToHost(String location) {
-        this.toHost = location;
     }
 
     public long getViewCount() {
@@ -75,30 +64,6 @@ public class Redirect {
 
     public void setViewCount(long viewCount) {
         this.viewCount = viewCount;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<RedirectLog> getRedirectLogs() {
-        return redirectLogs;
-    }
-
-    public void setRedirectLogs(List<RedirectLog> redirectLogs) {
-        this.redirectLogs = redirectLogs;
     }
 
     public JsonObject asJsonObject() {
@@ -116,5 +81,10 @@ public class Redirect {
                 .add("updatedAt", dateFormat.format(updatedAt))
                 .add("redirectLogs", arrayBuilder.build())
                 .build();
+    }
+
+    public void addLog(RedirectLog redirectLog) {
+        redirectLog.setRedirect(this);
+        redirectLogs.add(redirectLog);
     }
 }

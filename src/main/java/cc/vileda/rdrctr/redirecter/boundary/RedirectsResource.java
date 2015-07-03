@@ -5,6 +5,9 @@ import cc.vileda.rdrctr.redirecter.control.RedirectsHelper;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import cc.vileda.rdrctr.redirecter.entity.KnownRedirectEvent;
 import cc.vileda.rdrctr.redirecter.entity.UnknownRedirectEvent;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -20,6 +23,7 @@ import java.util.logging.Logger;
 @Stateless
 @Interceptors(LogInterceptor.class)
 @Path("/")
+@Api(value = "/", description = "Redirect")
 public class RedirectsResource {
     @Inject
     HttpServletRequest request;
@@ -40,9 +44,10 @@ public class RedirectsResource {
     Event<UnknownRedirectEvent> unknownRedirectEventEvent;
 
     @GET
-    @Path("/{path : ^(?:(?!rdrctr).)*$}")
+    @Path("/{path: ^(?:(?!rdrctr).)*$}")
     @Produces(MediaType.WILDCARD)
-    public Response doRedirect(@PathParam("path") String path) {
+    @ApiOperation(value = "redirect the domain", notes = "Redirect")
+    public Response doRedirect(@PathParam("path") @ApiParam(name = "path") String path) {
         String host = request.getHeader("Host");
         if(host != null && !"favicon.ico".equals(path)) {
             Response redirectResponse = redirectsHelper.getRedirectByHost(host, path);
@@ -59,13 +64,15 @@ public class RedirectsResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/")
+    @ApiOperation(value = "create a redirect", notes = "Create a Redirect Object")
     public Response createRedirect(Redirect redirect) {
         Redirect newRedirect = redirects.saveOrUpdate(redirect);
         return Response.created(URI.create("/rdrctr/" + newRedirect.getId())).build();
     }
 
     @GET
-    @Path("rdrctr/{id : \\d+}")
+    @Path("rdrctr/{id: \\d+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRedirect(@PathParam("id") long id) {
         Redirect redirect = redirects.find(id);

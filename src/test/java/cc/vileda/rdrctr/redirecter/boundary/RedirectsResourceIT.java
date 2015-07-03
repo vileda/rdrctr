@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
 
-import static cc.vileda.rdrctr.redirecter.boundary.RedirecterTestHelper.assertRedirectTo;
+import static cc.vileda.rdrctr.redirecter.boundary.RedirecterTestHelper.*;
 import static cc.vileda.rdrctr.redirecter.control.RedirectsHelper.extractSubdomain;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
@@ -78,7 +78,7 @@ public class RedirectsResourceIT {
         String to = getTestHost();
 
         Redirect redirect = new Redirect(from, to);
-        Response response = createRedirectByPost(redirect);
+        Response response = createRedirectByPost(target, redirect);
 
         assertNotNull(response);
         assertThat(response.getStatus(), is(Response.Status.CREATED.getStatusCode()));
@@ -86,7 +86,7 @@ public class RedirectsResourceIT {
         URI newRedirectUri = response.getLocation();
         assertNotNull(newRedirectUri);
 
-        JsonObject newRedirect = getRedirect(newRedirectUri);
+        JsonObject newRedirect = getRedirect(client, newRedirectUri);
         assertNotNull(newRedirect);
         JsonObject redirectJson = redirect.asJsonObject();
 
@@ -106,9 +106,9 @@ public class RedirectsResourceIT {
         String from = getTestHost();
         String to = getTestHost();
         to = to.replace(extractSubdomain(to), "");
-        Response response = createRedirectByPost(from, to);
+        Response response = createRedirectByPost(target, from, to);
         assertRedirectTo(target, from, "http://" + extractSubdomain(from) + to + "/");
-        JsonObject redirect = getRedirect(response.getLocation());
+        JsonObject redirect = getRedirect(client, response.getLocation());
         assertThat(redirect.getInt("viewCount"), is(1));
     }
 
@@ -118,24 +118,4 @@ public class RedirectsResourceIT {
         assertNotNull(response);
         assertThat(response.getStatus(), is(Response.Status.NOT_FOUND.getStatusCode()));
     }
-
-    private String getTestHost() {
-        return ("test"+ UUID.randomUUID().toString() + ".de").replace('-', '.');
-    }
-
-    private JsonObject getRedirect(URI newRedirectUri) {
-        return client.target(newRedirectUri)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON_TYPE).get(JsonObject.class);
-    }
-
-    private Response createRedirectByPost(String from, String to) {
-        return createRedirectByPost(new Redirect(from, to));
-    }
-
-    private Response createRedirectByPost(Redirect redirect) {
-        Entity<JsonObject> redirectEntity = Entity.json(redirect.asJsonObject());
-        return target.request(MediaType.APPLICATION_JSON_TYPE).post(redirectEntity);
-    }
-
 }

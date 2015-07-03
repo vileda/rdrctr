@@ -22,17 +22,7 @@ public class Redirects {
 
     public Optional<Redirect> findByFromHost(String ... fromHosts) {
         try {
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-            CriteriaQuery<Redirect> query = criteriaBuilder.createQuery(Redirect.class);
-            Predicate predicate = criteriaBuilder.disjunction();
-            Root<Redirect> from = query.from(Redirect.class);
-
-            for (String fromHost : fromHosts) {
-                predicate = criteriaBuilder.or(predicate,
-                        criteriaBuilder.equal(from.get(Redirect_.fromHost), fromHost));
-            }
-
-            query.where(predicate);
+            CriteriaQuery<Redirect> query = getRedirectCriteriaQuery(fromHosts);
 
             Redirect redirect = em.createQuery(query).getSingleResult();
 
@@ -40,6 +30,21 @@ public class Redirects {
         } catch (NoResultException ignored) { }
 
         return Optional.empty();
+    }
+
+    private CriteriaQuery<Redirect> getRedirectCriteriaQuery(String[] fromHosts) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Redirect> query = criteriaBuilder.createQuery(Redirect.class);
+        Predicate predicate = criteriaBuilder.disjunction();
+        Root<Redirect> from = query.from(Redirect.class);
+
+        for (String fromHost : fromHosts) {
+            predicate = criteriaBuilder.or(predicate,
+                    criteriaBuilder.equal(from.get(Redirect_.fromHost), fromHost));
+        }
+
+        query.where(predicate);
+        return query;
     }
 
     public Redirect saveOrUpdate(Redirect redirect) {

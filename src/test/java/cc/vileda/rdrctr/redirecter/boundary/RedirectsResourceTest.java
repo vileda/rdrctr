@@ -3,12 +3,9 @@ package cc.vileda.rdrctr.redirecter.boundary;
 import cc.vileda.rdrctr.JAXRSConfiguration;
 import cc.vileda.rdrctr.LogInterceptor;
 import cc.vileda.rdrctr.RedirecterLoggerProducer;
-import cc.vileda.rdrctr.redirecter.control.RedirectsHelper;
+import cc.vileda.rdrctr.redirecter.control.RedirectsControl;
 import cc.vileda.rdrctr.redirecter.entity.*;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.jsonp.JsonProcessingFeature;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
@@ -16,23 +13,18 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.json.JsonObject;
-import javax.json.stream.JsonGenerator;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import static cc.vileda.rdrctr.redirecter.boundary.RedirecterTestHelper.*;
-import static cc.vileda.rdrctr.redirecter.control.RedirectsHelper.extractSubdomain;
+import static cc.vileda.rdrctr.redirecter.control.RedirectsControl.extractSubdomain;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -57,7 +49,7 @@ public class RedirectsResourceTest {
                 .addClasses(RedirectLog_.class)
                 .addClasses(UnknownRedirectEvent.class)
                 .addClasses(KnownRedirectEvent.class)
-                .addClasses(RedirectsHelper.class)
+                .addClasses(RedirectsControl.class)
                 .addClasses(Redirects.class)
                 .addClass(RedirectsResource.class)
                 .addAsWebResource(EmptyAsset.INSTANCE, "beans.xml")
@@ -151,7 +143,7 @@ public class RedirectsResourceTest {
 
     @Test
     public void testExtractSubdomain() throws Exception {
-        String subdomain = RedirectsHelper.extractSubdomain("sub.domain.tld");
+        String subdomain = RedirectsControl.extractSubdomain("sub.domain.tld");
         assertThat(subdomain, is("sub."));
     }
 }

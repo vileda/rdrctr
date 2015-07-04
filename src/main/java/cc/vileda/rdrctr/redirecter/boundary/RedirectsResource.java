@@ -1,7 +1,7 @@
 package cc.vileda.rdrctr.redirecter.boundary;
 
 import cc.vileda.rdrctr.LogInterceptor;
-import cc.vileda.rdrctr.redirecter.control.RedirectsHelper;
+import cc.vileda.rdrctr.redirecter.control.RedirectsControl;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import cc.vileda.rdrctr.redirecter.entity.KnownRedirectEvent;
 import cc.vileda.rdrctr.redirecter.entity.UnknownRedirectEvent;
@@ -35,7 +35,7 @@ public class RedirectsResource {
     Logger logger;
 
     @Inject
-    RedirectsHelper redirectsHelper;
+    RedirectsControl redirectsHelper;
 
     @Inject
     Event<KnownRedirectEvent> knownRedirectEventEvent;

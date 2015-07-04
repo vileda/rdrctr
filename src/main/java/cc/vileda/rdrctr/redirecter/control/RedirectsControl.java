@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Stateless
-public class RedirectsHelper {
+public class RedirectsControl {
     @Inject
     HttpServletRequest request;
 
@@ -63,7 +63,7 @@ public class RedirectsHelper {
     }
 
     public Response getRedirectByHost(String host, String path) {
-        String subdomain = RedirectsHelper.extractSubdomain(host);
+        String subdomain = RedirectsControl.extractSubdomain(host);
         String fromHost = subdomain.length() > 0 ? host.replace(subdomain, "") : host;
 
         Optional<Redirect> redirect = redirects.findByFromHost(fromHost, host);
@@ -80,7 +80,10 @@ public class RedirectsHelper {
         String referer = event.getRequest().getHeader("Referer");
         String fromHost = event.getRequest().getHeader("Host");
         String toHost = event.getRedirect().getToHost();
-        String ip = event.getRequest().getRemoteAddr();
+        String ip = event.getRequest().getHeader("X-Real-IP");
+        if(ip == null || "".equals(ip)) {
+            ip = event.getRequest().getRemoteAddr();
+        }
 
         redirects.logRedirect(event.getRedirect(), referer, fromHost, toHost, ip);
     }

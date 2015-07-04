@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/vileda/rdrctr.svg)](https://travis-ci.org/vileda/rdrctr)
+[![Build Status](https://travis-ci.org/vileda/rdrctr.svg)](https://travis-ci.org/vileda/rdrctr) [![Coverage Status](https://coveralls.io/repos/vileda/rdrctr/badge.svg)](https://coveralls.io/r/vileda/rdrctr)
 
 # rdrctr - a redirecter for domains
 

@@ -1,15 +1,22 @@
 package cc.vileda.rdrctr.redirecter.boundary;
 
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.jsonp.JsonProcessingFeature;
+import org.jboss.arquillian.test.api.ArquillianResource;
 
 import javax.json.JsonObject;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -24,12 +31,35 @@ class RedirecterTestHelper {
                 is(Response.Status.TEMPORARY_REDIRECT.getStatusCode()));
     }
 
-    public static void assertRedirectTo(WebTarget client, String from, String to) {
-        Response response = client.request().header("Host", from).get();
+    public static void assertRedirectTo(URL base, String from, String to) throws URISyntaxException {
+        assertRedirectTo(base, "", from, to);
+    }
+
+    public static void assertRedirectTo(URL base, String path, String from, String to) throws URISyntaxException {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        WebTarget target = createWebTarget(base, path);
+        Response response = target.request().header("Host", from).get();
         assertIsRedirect(response, from, to);
         assertThat(from + " redirects to " + to,
                 response.getHeaderString("Location"),
                 is(to));
+    }
+
+    public static WebTarget createWebTarget(URL base) throws URISyntaxException {
+        WebTarget target = createClient().target(base.toURI());
+        return target;
+    }
+
+    public static WebTarget createWebTarget(URL base, String path) throws URISyntaxException {
+        WebTarget target = createClient().target(base.toURI());
+        return target.path(path);
+    }
+
+    public static Client createClient() {
+        return ClientBuilder.newClient()
+                    .register(JsonProcessingFeature.class)
+                    .property(ClientProperties.FOLLOW_REDIRECTS, false)
+                    .property(JsonGenerator.PRETTY_PRINTING, true);
     }
 
     public static String getTestHost() {

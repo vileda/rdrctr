@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vileda/rdrctr.svg)](https://travis-ci.org/vileda/rdrctr)
+
 # rdrctr - a redirecter for domains
 
 rdrctr is a simple tool to redirect domains

@@ -144,6 +144,9 @@
     <profiles>
         <profile>
             <id>wildfly-embedded-arquillian</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>io.undertow</groupId>

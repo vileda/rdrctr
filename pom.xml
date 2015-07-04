@@ -176,24 +176,37 @@
                 </testResources>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.1</version>
-                        <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
-                            <compilerArguments>
-                                <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
-                            </compilerArguments>
-                        </configuration>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>wildfly</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wildfly</groupId>
+                                            <artifactId>wildfly-dist</artifactId>
+                                            <version>8.2.0.Final</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>target</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.18.1</version>
                         <configuration>
                             <systemPropertyVariables>
                                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                                <jboss.home>/home/vileda/opt/wildfly-8.2.0.Final</jboss.home>
-                                <module.path>/home/vileda/opt/wildfly-8.2.0.Final/modules</module.path>
+                                <jboss.home>${project.basedir}/target/wildfly-8.2.0.Final</jboss.home>
+                                <module.path>${project.basedir}/target/wildfly-8.2.0.Final/modules</module.path>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

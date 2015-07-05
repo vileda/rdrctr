@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import static org.junit.Assert.*;
 
-@Ignore
 @RunWith(Arquillian.class)
 public class RedirectsTest {
     private static final String TESTHOST_FROM_ONE = "testhost.de";

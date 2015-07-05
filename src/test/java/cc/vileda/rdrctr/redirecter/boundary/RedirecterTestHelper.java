@@ -3,7 +3,6 @@ package cc.vileda.rdrctr.redirecter.boundary;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
-import org.jboss.arquillian.test.api.ArquillianResource;
 
 import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
@@ -46,11 +45,10 @@ class RedirecterTestHelper {
     }
 
     public static WebTarget createWebTarget(URL base) throws URISyntaxException {
-        WebTarget target = createClient().target(base.toURI());
-        return target;
+        return createClient().target(base.toURI());
     }
 
-    public static WebTarget createWebTarget(URL base, String path) throws URISyntaxException {
+    private static WebTarget createWebTarget(URL base, String path) throws URISyntaxException {
         WebTarget target = createClient().target(base.toURI());
         return target.path(path);
     }

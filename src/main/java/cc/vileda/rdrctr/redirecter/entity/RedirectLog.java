@@ -2,7 +2,9 @@ package cc.vileda.rdrctr.redirecter.entity;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.persistence.*;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -48,11 +50,17 @@ public class RedirectLog {
 
         return Json.createObjectBuilder()
                 .add("id", id)
-                .add("fromHost", fromHost == null ? "" : fromHost)
-                .add("toHost", toHost == null ? "" : toHost)
-                .add("referer", referer == null ? "" : referer)
-                .add("ip", ip == null ? "" : ip)
+                .add("fromHost", fromHost)
+                .add("toHost", jsonSafe(toHost))
+                .add("referer", jsonSafe(referer))
+                .add("ip", ip)
                 .add("createdAt", dateFormat.format(createdAt))
                 .build();
+    }
+
+    private JsonValue jsonSafe(String value) {
+        return value == null
+                ? JsonValue.NULL
+                : Json.createObjectBuilder().add(value, value).build().getJsonString(value);
     }
 }

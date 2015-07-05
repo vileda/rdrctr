@@ -32,13 +32,14 @@ public class Redirect {
     private long viewCount = 0L;
 
     @OneToMany(mappedBy = "redirect")
-    private final List<RedirectLog> redirectLogs = new ArrayList<>();
+    private List<RedirectLog> redirectLogs = new ArrayList<>();
     
     private final Date createdAt = new Date();
 
     private final Date updatedAt = new Date();
 
-    public Redirect() { }
+    public Redirect() {
+    }
 
     public Redirect(String fromHost, String toHost) {
         this.fromHost = fromHost;
@@ -80,10 +81,5 @@ public class Redirect {
                 .add("updatedAt", dateFormat.format(updatedAt))
                 .add("redirectLogs", arrayBuilder.build())
                 .build();
-    }
-
-    public void addLog(RedirectLog redirectLog) {
-        redirectLog.setRedirect(this);
-        redirectLogs.add(redirectLog);
     }
 }

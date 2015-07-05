@@ -1,5 +1,6 @@
 package cc.vileda.rdrctr.redirecter.boundary;
 
+import cc.vileda.rdrctr.NotFoundException;
 import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import cc.vileda.rdrctr.redirecter.entity.RedirectLog;
 import cc.vileda.rdrctr.redirecter.entity.Redirect_;
@@ -12,7 +13,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Optional;
 
 
 @Stateless
@@ -20,16 +20,15 @@ public class Redirects {
     @PersistenceContext(unitName = "h2")
     private EntityManager em;
 
-    public Optional<Redirect> findByFromHost(String ... fromHosts) {
+    public Redirect findByFromHost(String... fromHosts) throws NotFoundException {
+        CriteriaQuery<Redirect> query = getRedirectCriteriaQuery(fromHosts);
+        Redirect redirect;
         try {
-            CriteriaQuery<Redirect> query = getRedirectCriteriaQuery(fromHosts);
-
-            Redirect redirect = em.createQuery(query).getSingleResult();
-
-            return Optional.of(redirect);
-        } catch (NoResultException ignored) { }
-
-        return Optional.empty();
+            redirect = em.createQuery(query).getSingleResult();
+        } catch (NoResultException nre) {
+            throw new NotFoundException();
+        }
+        return redirect;
     }
 
     private CriteriaQuery<Redirect> getRedirectCriteriaQuery(String[] fromHosts) {
@@ -60,8 +59,8 @@ public class Redirects {
         return em.find(Redirect.class, id);
     }
 
-    public void logRedirect(Redirect redirect, String referer, String fromHost, String toHost, String ip) {
+    public RedirectLog logRedirect(Redirect redirect, String referer, String fromHost, String toHost, String ip) {
         RedirectLog redirectLog = new RedirectLog(redirect, referer, fromHost, toHost, ip);
-        em.merge(redirectLog);
+        return em.merge(redirectLog);
     }
 }

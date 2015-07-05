@@ -35,12 +35,12 @@ public class RedirectLog {
         this.redirect = redirect;
     }
 
-    public Redirect getRedirect() {
-        return redirect;
+    public long getId() {
+        return id;
     }
 
-    public void setRedirect(Redirect redirect) {
-        this.redirect = redirect;
+    public Redirect getRedirect() {
+        return redirect;
     }
 
     public JsonObject asJsonObject() {

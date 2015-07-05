@@ -1,9 +1,10 @@
 package cc.vileda.rdrctr.redirecter.boundary;
 
-import cc.vileda.rdrctr.LogInterceptor;
+import cc.vileda.rdrctr.*;
+import cc.vileda.rdrctr.NotFoundException;
 import cc.vileda.rdrctr.redirecter.control.RedirectsControl;
-import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import cc.vileda.rdrctr.redirecter.entity.KnownRedirectEvent;
+import cc.vileda.rdrctr.redirecter.entity.Redirect;
 import cc.vileda.rdrctr.redirecter.entity.UnknownRedirectEvent;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,7 +48,7 @@ public class RedirectsResource {
     @Path("/{path: ^(?:(?!rdrctr).)*$}")
     @Produces(MediaType.WILDCARD)
     @ApiOperation(value = "redirect the domain", notes = "Redirect")
-    public Response doRedirect(@PathParam("path") @ApiParam(name = "path") String path) {
+    public Response doRedirect(@PathParam("path") @ApiParam(name = "path") String path) throws NotFoundException {
         String host = request.getHeader("Host");
         if(host != null && !"favicon.ico".equals(path)) {
             Response redirectResponse = redirectsHelper.getRedirectByHost(host, path);

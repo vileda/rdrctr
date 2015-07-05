@@ -127,6 +127,15 @@
     </dependencies>
     <build>
         <finalName>rdrctr</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -142,6 +151,24 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.jdbc.url>
+                    jdbc:h2:tcp://localhost:9092/sonar
+                </sonar.jdbc.url>
+                <sonar.jdbc.username>sonar</sonar.jdbc.username>
+                <sonar.jdbc.password>sonar</sonar.jdbc.password>
+
+                <!-- Optional URL to server. Default value is http://localhost:9000 -->
+                <sonar.host.url>
+                    http://localhost:9000
+                </sonar.host.url>
+            </properties>
+        </profile>
         <profile>
             <id>wildfly-embedded-arquillian</id>
             <activation>
@@ -163,7 +190,26 @@
                 <dependency>
                     <groupId>org.wildfly</groupId>
                     <artifactId>wildfly-embedded</artifactId>
-                    <version>8.2.0.Final</version>
+                    <version>9.0.0.Final</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>org.jacoco.core</artifactId>
+                    <version>0.7.4.201502262128</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>org.jacoco.agent</artifactId>
+                    <version>0.7.4.201502262128</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.extension</groupId>
+                    <artifactId>arquillian-jacoco</artifactId>
+                    <version>1.0.0.Alpha8</version>
+                    <scope>test</scope>
                 </dependency>
             </dependencies>
             <build>
@@ -179,6 +225,25 @@
                 </testResources>
                 <plugins>
                     <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.4.201502262128</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
@@ -193,7 +258,7 @@
                                         <artifactItem>
                                             <groupId>org.wildfly</groupId>
                                             <artifactId>wildfly-dist</artifactId>
-                                            <version>8.2.0.Final</version>
+                                            <version>9.0.0.Final</version>
                                             <type>zip</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>target</outputDirectory>
@@ -208,8 +273,8 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                                <jboss.home>${project.basedir}/target/wildfly-8.2.0.Final</jboss.home>
-                                <module.path>${project.basedir}/target/wildfly-8.2.0.Final/modules</module.path>
+                                <jboss.home>${project.basedir}/target/wildfly-9.0.0.Final</jboss.home>
+                                <module.path>${project.basedir}/target/wildfly-9.0.0.Final/modules</module.path>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

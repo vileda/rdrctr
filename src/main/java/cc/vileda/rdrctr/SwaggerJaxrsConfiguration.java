@@ -3,12 +3,17 @@ package cc.vileda.rdrctr;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.config.DefaultJaxrsConfig;
 
+import javax.inject.Inject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "SwaggerJaxrsConfiguration", loadOnStartup = 2)
 public class SwaggerJaxrsConfiguration extends DefaultJaxrsConfig {
+    @Inject
+    Logger logger;
 
     @Override
     public void init(ServletConfig servletConfig) {
@@ -23,7 +28,7 @@ public class SwaggerJaxrsConfiguration extends DefaultJaxrsConfig {
             beanConfig.setResourcePackage("cc.vileda.rdrctr");
             beanConfig.setScan(true);
         } catch (ServletException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage());
         }
     }
 }

@@ -9,6 +9,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,12 +21,11 @@ public class LogInterceptor {
     private Logger log;
 
     @AroundInvoke
-    protected Object protocolInvocation(final InvocationContext ic)
-            throws Exception {
+    protected Object protocolInvocation(final InvocationContext ic) throws Exception {
         StringBuilder sb = new StringBuilder("[");
-        ArrayList<Object> objects = new ArrayList<>();
+        List<Object> objects = new ArrayList<>();
         Collections.addAll(objects, ic.getParameters());
-        if(objects.size() > 0) {
+        if(!objects.isEmpty()) {
             if(objects.size() > 1) {
                 for (Object obj : objects.subList(0, objects.size()-2)) {
                     sb.append(obj.toString());
@@ -81,6 +81,6 @@ public class LogInterceptor {
     private long getSystemTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
-                (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
+                bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime() : 0L;
     }
 }
